@@ -83,6 +83,7 @@ export class PetTexture extends Component {
         camera.position.z = 5;
         renderer = new THREE.WebGLRenderer({alpha: true});
         renderer.setSize(width, height);
+        renderer.setPixelRatio( window.devicePixelRatio );
         element.appendChild( renderer.domElement );
 
         const controls = new OrbitControls(camera, renderer.domElement);
