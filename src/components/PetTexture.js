@@ -14,8 +14,8 @@ export class PetTexture extends Component {
 
         console.log("Render");
 
-        if(this.props.file){
-            this.loadSkin(this.props.file);
+        if(this.props.texture){
+            this.loadSkin(this.props.texture);
         }
 
         return (
@@ -30,8 +30,8 @@ export class PetTexture extends Component {
         )
     }
 
-    async loadSkin(file){
-        let skinTexture = await this.loadTexture(file);
+    async loadSkin(texture){
+        let skinTexture = await this.loadTexture(texture);
         skinTexture.magFilter = THREE.NearestFilter;
         skinTexture.minFilter = THREE.NearestMipMapNearestFilter;
 
@@ -53,7 +53,7 @@ export class PetTexture extends Component {
             });
     }
 
-    async loadTexture(file){
+    async loadTexture(imageSrc){
         return new Promise(resolve => {
             let imageElement = document.createElement("img");
             let texture;
@@ -63,9 +63,7 @@ export class PetTexture extends Component {
                 texture.needsUpdate = true;
                 resolve(texture);
             }
-            getBase64(file, (result) => {
-                imageElement.src = result;
-            });
+            imageElement.src = imageSrc;
         });
     }
 
@@ -97,7 +95,7 @@ export class PetTexture extends Component {
             this.headMesh = object;
         }
 
-        const loadSkin = () => this.loadSkin(this.textureLink);
+        const loadSkin = () => this.loadSkin(this.props.texture);
 
         var loader = new OBJLoader();
         loader.load("model/MinecraftHead.obj", function(object){
@@ -129,19 +127,6 @@ export class PetTexture extends Component {
             camera.aspect = width / height;
             camera.updateProjectionMatrix();
         }
-    }
-}
-
-function getBase64(file, cb) {
-    if(file){
-        let reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = function () {
-            cb(reader.result)
-        };
-        reader.onerror = function (error) {
-            console.log('Error: ', error);
-        };
     }
 }
 

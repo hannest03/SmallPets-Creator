@@ -49,13 +49,13 @@ const particles = [
 
 function PetCreator() {
 
-    const [namespace, setNamespace] = useState("");
-    const [id, setId] = useState("");
-    const [pettype, setPettype] = useState("");
-    const [default_translation, setDefaultTranslation] = useState("");
-    const [translation_key, setTranslationKey] = useState("");
-    const [particle, setParticle] = useState("");
-    const [file, setFile] = useState("");
+    const [namespace, setNamespace] = useStickyState("", "namespace");
+    const [id, setId] = useStickyState("", "id");
+    const [pettype, setPettype] = useStickyState("", "pettype");
+    const [default_translation, setDefaultTranslation] = useStickyState("", "default_translation");
+    const [translation_key, setTranslationKey] = useStickyState("", "translation_key");
+    const [particle, setParticle] = useStickyState("", "particle");
+    const [texture, setTexture] = useStickyState("", "texture");
 
     function handleSubmit(event){
         event.preventDefault();
@@ -72,22 +72,25 @@ function PetCreator() {
                 className="right clearfix"
             >
                 <PetTexture
-                    file={file}
+                    texture={texture}
                 />
                 <input
                     required 
                     autoComplete="false"
                     type="file"
-                    name="file"
-                    placeholder="File"
+                    name="texture"
+                    placeholder="texture"
                     onChange={
                         (e) => {
                             if (!e.target.files[0].name.match(/.(jpg|jpeg|png|gif)$/i))
                                 alert("File isn't an image!");
                             
                             let file = e.target.files[0];
-                            setFile(file);
-                            console.log(file);
+
+                            getBase64(file, (result) => {
+                                console.log(result);
+                                setTexture(result);
+                            });
                         }
                     }
                 />
@@ -177,6 +180,34 @@ function PetCreator() {
             </div>
         </form>
     )
+}
+
+function useStickyState(defaultValue, key) {
+    const [value, setValue] = React.useState(() => {
+        const stickyValue = window.localStorage.getItem(key);
+        return stickyValue !== null
+            ? JSON.parse(stickyValue)
+            : defaultValue;
+    });
+    React.useEffect(() => {
+        let jsonString = JSON.stringify(value);
+        console.log(jsonString);
+        window.localStorage.setItem(key, jsonString);
+    }, [key, value]);
+    return [value, setValue];
+}
+
+  function getBase64(file, cb) {
+    if(file){
+        let reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = function () {
+            cb(reader.result)
+        };
+        reader.onerror = function (error) {
+            console.log('Error: ', error);
+        };
+    }
 }
 
 export default PetCreator
