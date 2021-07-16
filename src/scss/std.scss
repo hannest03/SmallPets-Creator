@@ -1,3 +1,15 @@
 @import "./_base.scss";
 
-body{ background-color: $background-primary; }
+*{ margin: 0; padding: 0; }
+
+body{ background-color: $background-primary; font-family: 'Cascadia Code'; font-size: 16px;}
+
+h1{ font-size: 1.5em; }
+h2{ font-size: 2.375em; }
+
+.wrap{ width: 92%; margin: 0 auto; max-width: 1280px; }
+.clearfix:after {content:"";display:block;clear:both;visibility:hidden;line-height:0;height:0;}
+
+input[type="text"]{
+    color: red;
+}
