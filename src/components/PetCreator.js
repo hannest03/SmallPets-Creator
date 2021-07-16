@@ -55,11 +55,7 @@ function PetCreator() {
     const [default_translation, setDefaultTranslation] = useState("");
     const [translation_key, setTranslationKey] = useState("");
     const [particle, setParticle] = useState("");
-    const [texture, setTexture] = useState("");
-
-    useEffect(() => {
-        setTexture("test/b3d2f48fccd0fda6.png");
-    }, [setTexture]);
+    const [file, setFile] = useState("");
 
     function handleSubmit(event){
         event.preventDefault();
@@ -76,19 +72,22 @@ function PetCreator() {
                 className="right clearfix"
             >
                 <PetTexture
-                    file={texture}
+                    file={file}
                 />
                 <input
                     required 
                     autoComplete="false"
-                    type="text"
-                    name="texture"
-                    value={texture}
-                    placeholder="Texture"
+                    type="file"
+                    name="file"
+                    placeholder="File"
                     onChange={
                         (e) => {
-                            console.log("asd");
-                            setTexture(e.target.value);
+                            if (!e.target.files[0].name.match(/.(jpg|jpeg|png|gif)$/i))
+                                alert("File isn't an image!");
+                            
+                            let file = e.target.files[0];
+                            setFile(file);
+                            console.log(file);
                         }
                     }
                 />

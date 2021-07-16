@@ -30,8 +30,8 @@ export class PetTexture extends Component {
         )
     }
 
-    async loadSkin(url){
-        let skinTexture = await this.loadTexture(url);
+    async loadSkin(file){
+        let skinTexture = await this.loadTexture(file);
         skinTexture.magFilter = THREE.NearestFilter;
         skinTexture.minFilter = THREE.NearestMipMapNearestFilter;
 
@@ -53,7 +53,7 @@ export class PetTexture extends Component {
             });
     }
 
-    async loadTexture(url){
+    async loadTexture(file){
         return new Promise(resolve => {
             let imageElement = document.createElement("img");
             let texture;
@@ -63,7 +63,9 @@ export class PetTexture extends Component {
                 texture.needsUpdate = true;
                 resolve(texture);
             }
-            imageElement.src = url;
+            getBase64(file, (result) => {
+                imageElement.src = result;
+            });
         });
     }
 
@@ -127,6 +129,19 @@ export class PetTexture extends Component {
             camera.aspect = width / height;
             camera.updateProjectionMatrix();
         }
+    }
+}
+
+function getBase64(file, cb) {
+    if(file){
+        let reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = function () {
+            cb(reader.result)
+        };
+        reader.onerror = function (error) {
+            console.log('Error: ', error);
+        };
     }
 }
 
