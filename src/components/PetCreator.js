@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React, {useState, useEffect} from 'react'
 import PetTexture from './PetTexture';
 
 const pettypes = {
@@ -55,7 +55,11 @@ function PetCreator() {
     const [default_translation, setDefaultTranslation] = useState("");
     const [translation_key, setTranslationKey] = useState("");
     const [particle, setParticle] = useState("");
-    const [texture, setTexture] = useState("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMTNkNGExNTYwM2Y5NTFkZTJlMmFiODBlZWQxNmJiYjVhNTgyM2JmNGFjYjhjNDYzMzQyNWQ1NDIxMGNmMGFkNSJ9fX0=");
+    const [texture, setTexture] = useState("");
+
+    useEffect(() => {
+        setTexture("test/b3d2f48fccd0fda6.png");
+    }, [setTexture]);
 
     function handleSubmit(event){
         event.preventDefault();
@@ -68,6 +72,27 @@ function PetCreator() {
             onSubmit={handleSubmit}
             autoComplete="false"
         >
+            <div
+                className="right clearfix"
+            >
+                <PetTexture
+                    file={texture}
+                />
+                <input
+                    required 
+                    autoComplete="false"
+                    type="text"
+                    name="texture"
+                    value={texture}
+                    placeholder="Texture"
+                    onChange={
+                        (e) => {
+                            console.log("asd");
+                            setTexture(e.target.value);
+                        }
+                    }
+                />
+            </div>
             <div
                 className="left clearfix"
             >
@@ -150,13 +175,6 @@ function PetCreator() {
                         return <option key={effect} value={effect}>{effect}</option>
                     })}
                 </select>
-            </div>
-            <div
-                className="right clearfix"
-            >
-                <PetTexture
-                    textureValue={texture}
-                />
             </div>
         </form>
     )

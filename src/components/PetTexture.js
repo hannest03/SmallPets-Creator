@@ -1,22 +1,140 @@
-import React from 'react'
+import React, { Component } from 'react'
+import * as THREE from 'three'
+import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js';
+import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
 
-function PetTexture(props) {
+export class PetTexture extends Component {
     
-    let textureLink = "";
+    constructor(props){
+		super(props);
+        this.uuid = uuidv4();
+	}
 
-    if(props.textureValue){
-        const textureJSONString = Buffer.from(props.textureValue, "base64").toString();
-        const textureJSON = JSON.parse(textureJSONString);
-        textureLink = textureJSON['textures']['SKIN']['url'];
+    render() {
+
+        console.log("Render");
+
+        if(this.props.file){
+            this.loadSkin(this.props.file);
+        }
+
+        return (
+            <div
+                className="pettexture"
+            >
+                <div
+                    id={this.uuid}
+                    className="render"
+                />
+            </div>
+        )
     }
 
-    console.log(textureLink);
+    async loadSkin(url){
+        let skinTexture = await this.loadTexture(url);
+        skinTexture.magFilter = THREE.NearestFilter;
+        skinTexture.minFilter = THREE.NearestMipMapNearestFilter;
 
-    return (
-        <div>
-            
-        </div>
-    )
+        const material = new THREE.MeshBasicMaterial({
+                map: skinTexture,
+                side: THREE.FrontSide
+            });
+        const material2 = new THREE.MeshBasicMaterial({
+            map: skinTexture,
+            transparent: true,
+            opacity: 1,
+            alphaTest: 0.5,
+            side: THREE.DoubleSide
+        });
+
+        if(this.headMesh)
+            this.headMesh.traverse(function(node){
+                node.material = [material2, material];
+            });
+    }
+
+    async loadTexture(url){
+        return new Promise(resolve => {
+            let imageElement = document.createElement("img");
+            let texture;
+            imageElement.onload = function(e){
+                console.log("Skin loaded!");
+                texture = new THREE.Texture(this);
+                texture.needsUpdate = true;
+                resolve(texture);
+            }
+            imageElement.src = url;
+        });
+    }
+
+    componentDidMount() {
+        const resizeFunction = this.resizeCanvasToDisplaySize;
+
+        let renderer = this.renderer;
+        let camera = this.camera;
+
+        let element = document.getElementById(this.uuid);
+
+        let width = element.clientWidth;
+        let height = width;
+
+        var scene = new THREE.Scene();
+        camera = new THREE.PerspectiveCamera(50, width / height, 1, 10000 );
+        camera.position.z = 5;
+        renderer = new THREE.WebGLRenderer({alpha: true});
+        renderer.setSize(width, height);
+        element.appendChild( renderer.domElement );
+
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableZoom = false;
+        controls.enableKeys = false;
+        controls.enablePan = false;
+
+        const setHeadMesh = (object) => {
+            this.headMesh = object;
+        }
+
+        const loadSkin = () => this.loadSkin(this.textureLink);
+
+        var loader = new OBJLoader();
+        loader.load("model/MinecraftHead.obj", function(object){
+            object.rotation.y = -2;
+            loadSkin();
+            setHeadMesh(object);
+            scene.add(object);
+        });
+
+        var animate = function () {
+            requestAnimationFrame( animate );
+            resizeFunction(renderer, camera);
+            controls.update();
+            renderer.render( scene, camera );
+        };
+        animate();
+
+    }
+    resizeCanvasToDisplaySize(renderer, camera) {
+        if(!renderer || !camera)
+            return;
+        const canvas = renderer.domElement;
+        const parent = canvas.parentElement;
+        const width = parent.clientWidth;
+        const height = width;
+
+        if (canvas.width !== width) {
+            renderer.setSize(width, height);
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
+        }
+    }
+}
+
+function uuidv4() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+    });
 }
 
 export default PetTexture
+
